@@ -130,13 +130,13 @@ tpz.trust.canCast = function(caster, spell, not_allowed_trust_ids)
     end
 
     -- Limits set by ROV Key Items
-    if num_trusts >= 3 and not caster:hasKeyItem(tpz.ki.RHAPSODY_IN_WHITE) then
-        caster:messageSystem(tpz.msg.system.TRUST_MAXIMUM_NUMBER)
-        return -1
-    elseif num_trusts >= 4 and not caster:hasKeyItem(tpz.ki.RHAPSODY_IN_CRIMSON) then
-        caster:messageSystem(tpz.msg.system.TRUST_MAXIMUM_NUMBER)
-        return -1
-    end
+    -- if num_trusts >= 3 and not caster:hasKeyItem(tpz.ki.RHAPSODY_IN_WHITE) then
+        -- caster:messageSystem(tpz.msg.system.TRUST_MAXIMUM_NUMBER)
+        -- return -1
+    -- elseif num_trusts >= 4 and not caster:hasKeyItem(tpz.ki.RHAPSODY_IN_CRIMSON) then
+        -- caster:messageSystem(tpz.msg.system.TRUST_MAXIMUM_NUMBER)
+        -- return -1
+    -- end
 
     return 0
 end

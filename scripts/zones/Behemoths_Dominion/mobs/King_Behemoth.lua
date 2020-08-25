@@ -45,7 +45,7 @@ end
 function onMobDespawn(mob)
     -- Set King_Behemoth's Window Open Time
     if LandKingSystem_HQ ~= 1 then
-        local wait = 72 * 3600
+        local wait = 600
         SetServerVariable("[POP]King_Behemoth", os.time() + wait) -- 3 days
         if LandKingSystem_HQ == 0 then -- Is time spawn only
             DisallowRespawn(mob:getID(), true)
@@ -57,6 +57,6 @@ function onMobDespawn(mob)
         SetServerVariable("[PH]King_Behemoth", 0)
         DisallowRespawn(ID.mob.BEHEMOTH, false)
         UpdateNMSpawnPoint(ID.mob.BEHEMOTH)
-        GetMobByID(ID.mob.BEHEMOTH):setRespawnTime(75600 + math.random(0, 6) * 1800) -- 21 - 24 hours with half hour windows
+        GetMobByID(ID.mob.BEHEMOTH):setRespawnTime(600) -- 21 - 24 hours with half hour windows
     end
 end

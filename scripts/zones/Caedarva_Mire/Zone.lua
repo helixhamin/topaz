@@ -12,8 +12,8 @@ require("scripts/globals/zone")
 
 function onInitialize(zone)
     UpdateNMSpawnPoint(ID.mob.AYNU_KAYSEY)
-    GetMobByID(ID.mob.AYNU_KAYSEY):setRespawnTime(math.random(900, 10800))
-    GetMobByID(ID.mob.KHIMAIRA):setRespawnTime(math.random(12, 36)*3600) -- 12 to 36 hours after maintenance, in 1-hour increments
+    GetMobByID(ID.mob.AYNU_KAYSEY):setRespawnTime(math.random(600, 610))
+    GetMobByID(ID.mob.KHIMAIRA):setRespawnTime(600) -- 12 to 36 hours after maintenance, in 1-hour increments
 
     tpz.helm.initZone(zone, tpz.helm.type.LOGGING)
 end

@@ -12,7 +12,7 @@ require("scripts/globals/zone")
 function onInitialize(zone)
     if (LandKingSystem_NQ ~= 1) then
         UpdateNMSpawnPoint(ID.mob.FAFNIR)
-        GetMobByID(ID.mob.FAFNIR):setRespawnTime(900 + math.random(0, 6) * 1800)
+        GetMobByID(ID.mob.FAFNIR):setRespawnTime(600)
     end
 end
 

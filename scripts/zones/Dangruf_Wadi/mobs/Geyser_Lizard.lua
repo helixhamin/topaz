@@ -17,5 +17,5 @@ function onMobDeath(mob, player, isKiller)
 end
 
 function onMobDespawn(mob)
-    mob:setLocalVar("pop", os.time() + (math.random(45, 75) * 60))
+    mob:setLocalVar("pop", os.time() + (math.random(45, 55) * 6))
 end

@@ -11,7 +11,7 @@ require("scripts/globals/zone")
 function onInitialize(zone)
     if (LandKingSystem_NQ ~= 1) then
         UpdateNMSpawnPoint(ID.mob.BEHEMOTH)
-        GetMobByID(ID.mob.BEHEMOTH):setRespawnTime(900 + math.random(0, 6) * 1800)
+        GetMobByID(ID.mob.BEHEMOTH):setRespawnTime(600)
     end
 end
 
