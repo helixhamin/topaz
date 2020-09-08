@@ -25,26 +25,26 @@ tpz.trust.message_offset =
 }
 
 local rovKIBattlefieldIDs = set{
-    5,    -- Shattering Stars (WAR LB5)
-    6,    -- Shattering Stars (BLM LB5)
-    7,    -- Shattering Stars (RNG LB5)
-    70,   -- Shattering Stars (RDM LB5)
-    71,   -- Shattering Stars (THF LB5)
-    72,   -- Shattering Stars (BST LB5)
-    101,  -- Shattering Stars (MNK LB5)
-    102,  -- Shattering Stars (WHM LB5)
-    103,  -- Shattering Stars (SMN LB5)
-    163,  -- Survival of the Wisest (SCH LB5)
-    194,  -- Shattering Stars (SAM LB5)
-    195,  -- Shattering Stars (NIN LB5)
-    196,  -- Shattering Stars (DRG LB5)
-    517,  -- Shattering Stars (PLD LB5)
-    518,  -- Shattering Stars (DRK LB5)
-    519,  -- Shattering Stars (BRD LB5)
-    530,  -- A Furious Finale (DNC LB5)
-    1091, -- Breaking the Bonds of Fate (COR LB5)
-    1123, -- Achieving True Power (PUP LB5)
-    1154, -- The Beast Within (BLU LB5)
+    -- 5,    -- Shattering Stars (WAR LB5)
+    -- 6,    -- Shattering Stars (BLM LB5)
+    -- 7,    -- Shattering Stars (RNG LB5)
+    -- 70,   -- Shattering Stars (RDM LB5)
+    -- 71,   -- Shattering Stars (THF LB5)
+    -- 72,   -- Shattering Stars (BST LB5)
+    -- 101,  -- Shattering Stars (MNK LB5)
+    -- 102,  -- Shattering Stars (WHM LB5)
+    -- 103,  -- Shattering Stars (SMN LB5)
+    -- 163,  -- Survival of the Wisest (SCH LB5)
+    -- 194,  -- Shattering Stars (SAM LB5)
+    -- 195,  -- Shattering Stars (NIN LB5)
+    -- 196,  -- Shattering Stars (DRG LB5)
+    -- 517,  -- Shattering Stars (PLD LB5)
+    -- 518,  -- Shattering Stars (DRK LB5)
+    -- 519,  -- Shattering Stars (BRD LB5)
+    -- 530,  -- A Furious Finale (DNC LB5)
+    -- 1091, -- Breaking the Bonds of Fate (COR LB5)
+    -- 1123, -- Achieving True Power (PUP LB5)
+    -- 1154, -- The Beast Within (BLU LB5)
 -- TODO: GEO LB5
 -- TODO: RUN LB5
 } 
@@ -118,10 +118,10 @@ tpz.trust.canCast = function(caster, spell, not_allowed_trust_ids)
     end
 
     -- Max party size
-    if num_pt >= 6 then
-        caster:messageSystem(tpz.msg.system.TRUST_MAXIMUM_NUMBER)
-        return -1
-    end
+    -- if num_pt >= 6 then
+        -- caster:messageSystem(tpz.msg.system.TRUST_MAXIMUM_NUMBER)
+        -- return -1
+    -- end
 
     -- Some battlefields allow trusts after you get this ROV Key Item
     local casterBattlefieldID = caster:getBattlefieldID()
