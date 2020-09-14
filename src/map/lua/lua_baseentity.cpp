@@ -51,6 +51,7 @@
 #include "../mobskill.h"
 #include "../mob_spell_container.h"
 #include "../recast_container.h"
+#include "../roe.h"
 #include "../spell.h"
 #include "../status_effect_container.h"
 #include "../timetriggers.h"
@@ -1950,21 +1951,64 @@ inline int32 CLuaBaseEntity::clearPath(lua_State* L)
 /************************************************************************
 *  Function: checkDistance()
 *  Purpose : Returns the yalm distance between entities
-*  Example : if (player:checkDistance(pet) <= 25) then
-*  Notes   :
+*  Example1: if player:checkDistance(target) <= 25 then
+*  Example2: if player:checkDistance(pos) <= 25 then
+*  Example3: if player:checkDistance(posX, posY, PosZ) <= 25 then
+*  Notes   : Example1 is an entity, the others are coordinate point inputs
 ************************************************************************/
 
 inline int32 CLuaBaseEntity::checkDistance(lua_State *L)
 {
     TPZ_DEBUG_BREAK_IF(m_PBaseEntity == nullptr);
-    TPZ_DEBUG_BREAK_IF(lua_isnil(L, 1) || !lua_isuserdata(L, 1));
+    TPZ_DEBUG_BREAK_IF(lua_isnil(L, 1));
 
-    CLuaBaseEntity* PLuaBaseEntity = Lunar<CLuaBaseEntity>::check(L, 1);
+    float calcdistance = 0;
 
-    CBattleEntity* PBattle = (CBattleEntity*)m_PBaseEntity;
-    CBattleEntity* PMob = (CBattleEntity*)PLuaBaseEntity->GetBaseEntity();
+    if (lua_isuserdata(L, 1))
+    {
+        CLuaBaseEntity* PLuaBaseEntity = Lunar<CLuaBaseEntity>::check(L, 1);
+        calcdistance = distance(m_PBaseEntity->loc.p, PLuaBaseEntity->GetBaseEntity()->loc.p);
+    }
+    else
+    {
+        float posX = 0;
+        float posY = 0;
+        float posZ = 0;
+        position_t point;
 
-    float calcdistance = distance(PBattle->loc.p, PMob->loc.p);
+        if (lua_istable(L, 1))
+        {
+            lua_getfield(L, 1, "x");
+            posX = (float)lua_tonumber(L, -1);
+            lua_getfield(L, 1, "y");
+            posY = (float)lua_tonumber(L, -1);
+            lua_getfield(L, 1, "z");
+            posZ = (float)lua_tonumber(L, -1);
+        }
+        else if (lua_isnumber(L, 1))
+        {
+            posX = (float)lua_tonumber(L, 1);
+
+            if (!lua_isnil(L, 2) && lua_isnumber(L, 2))
+            {
+                posY = (float)lua_tonumber(L, 2);
+            }
+
+            if (!lua_isnil(L, 3) && lua_isnumber(L, 3))
+            {
+                posZ = (float)lua_tonumber(L, 3);
+            }
+        }
+        else
+        {
+            ShowError("Lua::checkDistance : invalid inputs.");
+            return 0;
+        }
+        point.x = posX;
+        point.y = posY;
+        point.z = posZ;
+        calcdistance = distance(m_PBaseEntity->loc.p, point);
+    }
 
     lua_pushnumber(L, calcdistance);
     return 1;
@@ -2832,7 +2876,6 @@ inline int32 CLuaBaseEntity::setPos(lua_State *L)
 
     if (lua_isnumber(L, 1))
     {
-
         if (!lua_isnil(L, 1) && lua_isnumber(L, 1))
             m_PBaseEntity->loc.p.x = (float)lua_tonumber(L, 1);
         if (!lua_isnil(L, 2) && lua_isnumber(L, 2))
@@ -6798,14 +6841,14 @@ inline int32 CLuaBaseEntity::setEminenceCompleted(lua_State *L)
 
     if (repeat)
     {
-        charutils::SetEminenceRecordProgress(PChar, recordID, 0);
+        roeutils::SetEminenceRecordProgress(PChar, recordID, 0);
     }
     else
     {
-        charutils::DelEminenceRecord(PChar, recordID);
+        roeutils::DelEminenceRecord(PChar, recordID);
     }
 
-    charutils::SetEminenceRecordCompletion(PChar, recordID, status);
+    roeutils::SetEminenceRecordCompletion(PChar, recordID, status);
 
     return 0;
 }
@@ -6827,7 +6870,7 @@ inline int32 CLuaBaseEntity::getEminenceCompleted(lua_State *L)
     CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
     uint16 recordID = (uint16)lua_tointeger(L, 1);
 
-    lua_pushboolean(L, (bool)charutils::GetEminenceRecordCompletion(PChar, recordID));
+    lua_pushboolean(L, (bool)roeutils::GetEminenceRecordCompletion(PChar, recordID));
 
     return 1;
 }
@@ -6851,7 +6894,7 @@ inline int32 CLuaBaseEntity::setEminenceProgress(lua_State *L)
     uint16 recordID = (uint16)lua_tointeger(L, 1);
     uint32 progress = (uint32)lua_tointeger(L, 2);
 
-    bool result = charutils::SetEminenceRecordProgress(PChar, recordID, progress);
+    bool result = roeutils::SetEminenceRecordProgress(PChar, recordID, progress);
     lua_pushboolean(L, result);
 
     uint32 total = static_cast<int32>(lua_tointeger(L, 3));
@@ -6878,12 +6921,18 @@ inline int32 CLuaBaseEntity::getEminenceProgress(lua_State *L)
 
     TPZ_DEBUG_BREAK_IF(lua_isnil(L, 1) || !lua_isnumber(L, 1));
 
+    if(m_PBaseEntity->objtype != TYPE_PC)
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+
     CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
     uint16 recordID = (uint16)lua_tointeger(L, 1);
 
-    if(charutils::HasEminenceRecord(PChar, recordID))
+    if(roeutils::HasEminenceRecord(PChar, recordID))
     {
-        uint32 progress = charutils::GetEminenceRecordProgress(PChar, recordID);
+        uint32 progress = roeutils::GetEminenceRecordProgress(PChar, recordID);
         lua_pushinteger(L, progress);
     } else {
         lua_pushnil(L);
@@ -9383,6 +9432,27 @@ inline int32 CLuaBaseEntity::disableLevelSync(lua_State* L)
 
     PChar->loc.zone->PushPacket(PChar, CHAR_INRANGE, new CCharSyncPacket(PChar));
     return 0;
+}
+
+/************************************************************************
+*  Function: isLevelSync()
+*  Purpose :
+*  Example : player:isLevelSync()
+*  Notes   :
+************************************************************************/
+
+inline int32 CLuaBaseEntity::isLevelSync(lua_State* L)
+{
+    TPZ_DEBUG_BREAK_IF(m_PBaseEntity->objtype != TYPE_PC);
+
+    CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
+
+    if (PChar->PParty)
+        lua_pushboolean(L, (PChar->PParty->GetSyncTarget() && PChar->PParty->GetSyncTarget() != PChar) );
+    else
+        lua_pushboolean(L, false);
+
+    return 1;
 }
 
 /************************************************************************
@@ -15342,6 +15412,7 @@ Lunar<CLuaBaseEntity>::Register_t CLuaBaseEntity::methods[] =
 
     LUNAR_DECLARE_METHOD(CLuaBaseEntity,reloadParty),
     LUNAR_DECLARE_METHOD(CLuaBaseEntity,disableLevelSync),
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity,isLevelSync),
 
     LUNAR_DECLARE_METHOD(CLuaBaseEntity,checkSoloPartyAlliance),
 
