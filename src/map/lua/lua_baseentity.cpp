@@ -3946,8 +3946,17 @@ inline int32 CLuaBaseEntity::addShopItem(lua_State *L)
     uint16 itemID = (uint16)lua_tonumber(L, 1);
     uint32 price = (uint32)lua_tonumber(L, 2);
 
+
     uint8 slotID = ((CCharEntity*)m_PBaseEntity)->Container->getItemsCount();
     ((CCharEntity*)m_PBaseEntity)->Container->setItem(slotID, itemID, 0, price);
+    CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
+    uint8 slotID = PChar->Container->getItemsCount();
+
+    PChar->Container->setItem(slotID, itemID, 0, price);
+
+    // Players can add items to the shop container during shop interaction,
+    // so track the shop's number of items separately from the container's size.
+    PChar->Container->setExSize(PChar->Container->getExSize() + 1);
 
     if(lua_isnumber(L, 3) && lua_isnumber(L, 4))
     {
@@ -6913,8 +6922,8 @@ inline int32 CLuaBaseEntity::setEminenceProgress(lua_State *L)
     TPZ_DEBUG_BREAK_IF(lua_isnil(L, 2) || !lua_isnumber(L, 2));
 
     CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
-    uint16 recordID = (uint16)lua_tointeger(L, 1);
-    uint32 progress = (uint32)lua_tointeger(L, 2);
+    uint16 recordID = static_cast<uint16>(lua_tointeger(L, 1));
+    uint32 progress = static_cast<uint32>(lua_tointeger(L, 2));
 
     bool result = roeutils::SetEminenceRecordProgress(PChar, recordID, progress);
     lua_pushboolean(L, result);
