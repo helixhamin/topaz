@@ -2390,15 +2390,18 @@ inline int32 CLuaBaseEntity::sendGuild(lua_State* L)
     TPZ_DEBUG_BREAK_IF(open > close);
 
     uint8 VanadielHour = (uint8)CVanaTime::getInstance()->getHour();
-    uint8 VanadielDay = (uint8)CVanaTime::getInstance()->getWeekday();
+    // uint8 VanadielDay = (uint8)CVanaTime::getInstance()->getWeekday();
 
     GUILDSTATUS status = GUILD_OPEN;
 
+    /*
+     * No more guild holidays since 2014
     if (VanadielDay == holiday)
     {
         status = GUILD_HOLYDAY;
     }
-    else if ((VanadielHour < open) || (VanadielHour >= close))
+    */
+    if ((VanadielHour < open) || (VanadielHour >= close))
     {
         status = GUILD_CLOSE;
     }
@@ -5026,6 +5029,8 @@ inline int32 CLuaBaseEntity::setAllegiance(lua_State* L)
     ALLEGIANCETYPE allegiance = (ALLEGIANCETYPE)lua_tointeger(L, 1);
 
     m_PBaseEntity->allegiance = allegiance;
+    m_PBaseEntity->updatemask |= UPDATE_HP;
+
     return 0;
 }
 
@@ -6921,12 +6926,21 @@ inline int32 CLuaBaseEntity::setEminenceProgress(lua_State *L)
     CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
     uint16 recordID = static_cast<uint16>(lua_tointeger(L, 1));
     uint32 progress = static_cast<uint32>(lua_tointeger(L, 2));
+    uint32 total = static_cast<uint32>(lua_tointeger(L, 3));
+
+    // Determine threshold for sending progress messages
+    bool progressNotify {true};
+    if (uint32 threshold = roeutils::RoeCache.NotifyThresholds[recordID]; threshold > 1)
+    {
+        uint32 prevStep = static_cast<uint32>(roeutils::GetEminenceRecordProgress(PChar, recordID) / threshold);
+        uint32 nextStep = static_cast<uint32>(progress / threshold);
+        progressNotify = nextStep > prevStep;
+    }
 
     bool result = roeutils::SetEminenceRecordProgress(PChar, recordID, progress);
     lua_pushboolean(L, result);
 
-    uint32 total = static_cast<int32>(lua_tointeger(L, 3));
-    if (total)
+    if (total && progressNotify)
     {
         PChar->pushPacket(new CMessageBasicPacket(PChar, PChar, recordID, 0, MSGBASIC_ROE_RECORD));
         PChar->pushPacket(new CMessageBasicPacket(PChar, PChar, progress, total, MSGBASIC_ROE_PROGRESS));
@@ -15447,6 +15461,10 @@ Lunar<CLuaBaseEntity>::Register_t CLuaBaseEntity::methods[] =
     LUNAR_DECLARE_METHOD(CLuaBaseEntity, checkKillCredit),
 
     // Instances
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity, getInstance),
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity, setInstance),
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity, createInstance),
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity, instanceEntry),
 
     LUNAR_DECLARE_METHOD(CLuaBaseEntity, getConfrontationEffect),
     LUNAR_DECLARE_METHOD(CLuaBaseEntity, copyConfrontationEffect),
