@@ -1055,7 +1055,8 @@ tpz.mod =
     MAGIC_CRIT_DMG_INCREASE         = 563,
     HASTE_MAGIC                     = 167,
     SPELLINTERRUPT                  = 168,
-    MOVE                            = 169,
+    MOVE                            = 169, -- % Movement Speed
+    MOUNT_MOVE                      = 972, -- % Mount Movement Speed
     FASTCAST                        = 170,
     UFASTCAST                       = 407,
     CURE_CAST_TIME                  = 519,
@@ -1628,7 +1629,10 @@ tpz.latent =
     ZONE_HOME_NATION         = 54, -- in zone and citizen of nation (aketons)
     MP_OVER                  = 55, -- mp greater than # - PARAM: MP #
     WEAPON_DRAWN_MP_OVER     = 56, -- while weapon is drawn and mp greater than # - PARAM: MP #
-    ELEVEN_ROLL_ACTIVE       = 57  -- corsair roll of 11 active
+    ELEVEN_ROLL_ACTIVE       = 57, -- corsair roll of 11 active
+    IN_ASSAULT               = 58, -- is in an Instance battle in a TOAU zone
+    VS_ECOSYSTEM             = 59, -- Vs. Specific Ecosystem ID (e.g. Vs. Birds: Accuracy+3)
+    VS_FAMILY                = 60, -- Vs. Specific Family ID (e.g. Vs. Apkallu: Accuracy+3)
 }
 
 ------------------------------------
