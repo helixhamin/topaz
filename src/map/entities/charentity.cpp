@@ -213,6 +213,8 @@ CCharEntity::CCharEntity()
     m_moghouseID = 0;
     m_moghancementID = 0;
 
+    m_Substate = CHAR_SUBSTATE::SUBSTATE_NONE;
+
     PAI = std::make_unique<CAIContainer>(this, nullptr, std::make_unique<CPlayerController>(this),
         std::make_unique<CTargetFind>(this));
 }
@@ -492,6 +494,10 @@ void CCharEntity::RemoveTrust(CTrustEntity* PTrust)
     auto trustIt = std::find_if(PTrusts.begin(), PTrusts.end(), [PTrust](auto trust) { return PTrust == trust; });
     if (trustIt != PTrusts.end())
     {
+        if (PTrust->animation == ANIMATION_DESPAWN)
+        {
+            luautils::OnMobDespawn(PTrust);
+        }
         PTrust->PAI->Despawn();
         PTrusts.erase(trustIt);
     }

@@ -91,7 +91,7 @@ enum MSGBASIC_ID : uint16
 	/* Gardening */
 	MSGBASIC_GARDENING_SEED_SOWN    = 256, /* In this flower pot: Seeds sown: <item>*/
 	MSGBASIC_GARDENING_CRYSTAL_NONE = 257, /* Crystal used: none*/
-	MSGBASIC_GARDENING_CRYSTAL_USED = 258, /* Crystal used: <item>*/ 
+	MSGBASIC_GARDENING_CRYSTAL_USED = 258, /* Crystal used: <item>*/
 	/* Ranged */
 	MSGBASIC_NO_RANGED_WEAPON		= 216, /* You do not have an appropriate ranged weapon equipped. */
 	MSGBASIC_CANNOT_SEE				= 217, /* You cannot see <target>. */
@@ -130,14 +130,20 @@ enum MSGBASIC_ID : uint16
 	MSGBASIC_TREASURE_HUNTER_UP		= 603,  /* Additional effect: Treasure Hunter effectiveness against <target> increases to .. */
 	/* DNC */
 	MSGBASIC_NO_FINISHINGMOVES		= 524,
-	/* TRUST & ALTER EGO */
-        MSGBASIC_TRUST_NO_CAST_TRUST    = 700,  // You are unable to use Trust magic at this time.
-        MSGBASIC_TRUST_NO_CALL_AE       = 717,  // You cannot call forth alter egos here.
-        /* ROE */
+    /* GEO */
+    MSGBASIC_SAME_EEFECT_LUOPAN     = 660, /* The same effect is already active on that luopan! */
+    MSGBASIC_LUOPAN_ALREADY_PLACED  = 661, /* <player> has already placed a luopan. Unable to use ability. */
+    MSGBASIC_REQUIRE_LUOPAN         = 662, /* This action requires a luopan. */
+    MSGBASIC_LUOPAN_HP_RATE_DOWN    = 663, /* <player> uses <ability>. The luopan's HP consumption rate has been reduced. */
+    MSGBASIC_LUOPAN_HP_RATE_UP      = 664, /* <player> uses <ability>. The luopan's HP consumption rate has been increased. */
+    MSGBASIC_HAS_LUOPON_NO_USE      = 665, /* <player> has a pet. Unable to use ability. */
+    /* TRUST & ALTER EGO */
+    MSGBASIC_TRUST_NO_CAST_TRUST    = 700,  // You are unable to use Trust magic at this time.
+    MSGBASIC_TRUST_NO_CALL_AE       = 717,  // You cannot call forth alter egos here.
+	/* ROE */
 	MSGBASIC_ROE_START              = 704,
 	MSGBASIC_ROE_RECORD             = 697, // Records of Eminence: <record>.
 	MSGBASIC_ROE_PROGRESS           = 698, // Progress: <amount>/<amount>.
-
 	/* DEBUG MESSAGES */
 	MSGBASIC_DEBUG_RESISTED_SPELL	= 66, /* Debug: Resisted spell! */
 	MSGBASIC_DEBUG_RECEIVED_STATUS	= 73, /* Debug: <target>'s status is now .. */
