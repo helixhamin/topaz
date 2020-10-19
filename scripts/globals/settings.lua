@@ -108,6 +108,11 @@ CHEST_MIN_ILLUSION_TIME  = 180  -- 30 minutes
 LandKingSystem_NQ = 2
 LandKingSystem_HQ = 2
 
+-- Multiplier to NM lottery spawn chance. (Default 1.0) eg. 0 = disable lottery spawns. -1 for always 100% chance.
+NM_LOTTERYCHANCE = 1.0
+-- Multiplier to NM lottery cooldown time (Default 1.0) eg. 2.0 = twice as long. 0 = no cooldowns.
+NM_LOTTERYCOOLDOWN = 1.0
+
 -- DYNAMIS SETTINGS
     BETWEEN_2DYNA_WAIT_TIME = 1       -- Hours before player can re-enter Dynamis. Default is 1 Earthday (24 hours).
         DYNA_MIDNIGHT_RESET = true     -- if true, makes the wait time count by number of server midnights instead of full 24 hour intervals

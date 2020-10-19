@@ -49,7 +49,6 @@
 #include "../party.h"
 #include "../alliance.h"
 #include "../entities/mobentity.h"
-#include "../roe.h"
 #include "../spell.h"
 #include "../weapon_skill.h"
 #include "../vana_time.h"
@@ -65,6 +64,7 @@
 #include "../entities/automatonentity.h"
 #include "../utils/itemutils.h"
 #include "../utils/charutils.h"
+#include "../utils/battleutils.h"
 #include "../conquest_system.h"
 #include "../weapon_skill.h"
 #include "../status_effect_container.h"
@@ -129,6 +129,7 @@ namespace luautils
         lua_register(LuaHandle, "VanadielTOTD", luautils::VanadielTOTD);
         lua_register(LuaHandle, "VanadielHour", luautils::VanadielHour);
         lua_register(LuaHandle, "VanadielMinute", luautils::VanadielMinute);
+        lua_register(LuaHandle, "VanadielDayOfTheWeek", luautils::VanadielDayOfTheWeek);
         lua_register(LuaHandle, "VanadielDayOfTheMonth", luautils::VanadielDayOfTheMonth);
         lua_register(LuaHandle, "VanadielDayOfTheYear", luautils::VanadielDayOfTheYear);
         lua_register(LuaHandle, "VanadielYear", luautils::VanadielYear);
@@ -665,6 +666,21 @@ namespace luautils
 
     /************************************************************************
     *                                                                       *
+    *   Return Vanadiel day of the week                                     *
+    *   Note: THIS IS NOT THE SAME AS THAT DAY'S ELEMENT                    *
+    *   Days of week: Fire Earth Water Wind Ice Lightning Light Dark        *
+    *   Elements: Fire Ice Wind Earth Thunder Water Light Dark              *
+    *                                                                       *
+    ************************************************************************/
+
+    int32 VanadielDayOfTheWeek(lua_State* L)
+    {
+        lua_pushinteger(L, CVanaTime::getInstance()->getWeekday());
+        return 1;
+    }
+
+    /************************************************************************
+    *                                                                       *
     *   Return Vanadiel Hour                                                *
     *                                                                       *
     ************************************************************************/
@@ -689,13 +705,16 @@ namespace luautils
 
     /************************************************************************
     *                                                                       *
-    *   Return Vanadiel Day element                                         *
+    *   Return Vanadiel Day's element                                       *
+    *   Note: THIS IS NOT THE SAME AS THE DAY OF THE WEEK                   *
+    *   Days of week: Fire Earth Water Wind Ice Lightning Light Dark        *
+    *   Elements: Fire Ice Wind Earth Thunder Water Light Dark              *
     *                                                                       *
     ************************************************************************/
 
     int32 VanadielDayElement(lua_State* L)
     {
-        lua_pushinteger(L, CVanaTime::getInstance()->getWeekday());
+        lua_pushinteger(L, battleutils::GetDayElement());
         return 1;
     }
 
@@ -2951,8 +2970,6 @@ namespace luautils
         TPZ_DEBUG_BREAK_IF(PMob == nullptr);
 
         CCharEntity* PChar = dynamic_cast<CCharEntity*>(PKiller);
-
-        roeutils::event(ROE_MOBKILL, (CCharEntity*)PKiller, RoeDatagram("mob", (CMobEntity*)PMob));
 
         if (PChar && PMob->objtype == TYPE_MOB)
         {

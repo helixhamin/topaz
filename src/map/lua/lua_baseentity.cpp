@@ -6136,17 +6136,24 @@ inline int32 CLuaBaseEntity::getFameLevel(lua_State *L)
 *  Function: getRank()
 *  Purpose : Returns the rank of a player's current nation
 *  Example : player:getRank()
-*  Notes   : To Do: Add functionality for specifying a nation?
+*  Notes   : Returns current nation if no nation is provided
 ************************************************************************/
 
-inline int32 CLuaBaseEntity::getRank(lua_State *L)
+inline int32 CLuaBaseEntity::getRank(lua_State* L)
 {
     TPZ_DEBUG_BREAK_IF(m_PBaseEntity == nullptr);
     TPZ_DEBUG_BREAK_IF(m_PBaseEntity->objtype != TYPE_PC);
 
-    CCharEntity * PChar = (CCharEntity*)m_PBaseEntity;
+    CCharEntity* PChar = (CCharEntity*)m_PBaseEntity;
 
-    lua_pushinteger(L, PChar->profile.rank[PChar->profile.nation]);
+    if (!lua_isnil(L, 1) && lua_isnumber(L, 1))
+    {
+        lua_pushinteger(L, PChar->profile.rank[static_cast<uint8>(lua_tointeger(L, 1))]);
+    }
+    else
+    {
+        lua_pushinteger(L, PChar->profile.rank[PChar->profile.nation]);
+    }
     return 1;
 }
 
@@ -14067,7 +14074,7 @@ inline int32 CLuaBaseEntity::hasSpellList(lua_State* L)
 /************************************************************************
 *  Function: setSpellList()
 *  Purpose : Specify a spell list for a Mob to use
-*  Example : mob:setSpellList(118 + DayofWeek)
+*  Example : mob:setSpellList(118 + DayOfTheWeek)
 *  Notes   :
 ************************************************************************/
 

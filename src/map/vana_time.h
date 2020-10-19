@@ -22,6 +22,10 @@
 #ifndef _CVANATIME_H
 #define _CVANATIME_H
 
+#ifdef WIN32
+#define timegm _mkgmtime
+#endif
+
 #define VTIME_BASEDATE		1009810800		// unix epoch - 1009810800 = se epoch (in earth seconds)
 #define VTIME_YEAR			518400			// 360 * GameDay
 #define VTIME_MONTH			43200			// 30 * GameDay
@@ -99,21 +103,22 @@ public:
 
 private:
 
-	static CVanaTime * _instance;
+    static CVanaTime * _instance;
 
-	CVanaTime();
+    CVanaTime();
 
-	uint32	 m_vYear;								// Vanadiel Year
-	uint32	 m_vMon;								// Vanadiel Month
-	uint32	 m_vDate;								// Vanadiel Date (day of the month)
-	uint32	 m_vHour;								// Vanadiel Hour
-	uint32	 m_vMin;								// Vanadiel Minute
-	uint32	 m_vDay;								// Vanadiel Day (Day of the week, fire,earth,wind)
-	uint32	 m_vanaDate;							// Vanadiel time in integer format
+    uint32   m_vYear;                               // Vanadiel Year
+    uint32   m_vMon;                                // Vanadiel Month
+    uint32   m_vDate;                               // Vanadiel Date (day of the month)
+    uint32   m_vHour;                               // Vanadiel Hour
+    uint32   m_vMin;                                // Vanadiel Minute
+    uint32   m_vDay;                                // Vanadiel day of the week (fire, earth, wind, water, ice, lightning, light, dark)
+    uint8    m_vDayElement;                         // Vanadiel day's element (fire, ice, wind, earth, thunder, water, light dark)
+    uint32   m_vanaDate;                            // Vanadiel time in integer format
 
-	TIMETYPE m_TimeType;							// текущий тип времени
+    TIMETYPE m_TimeType;                            // текущий тип времени
 
-	int32	 m_customEpoch;						// Custom epoch to use instead of VTIME_BASEDATE
+    int32     m_customEpoch;                        // Custom epoch to use instead of VTIME_BASEDATE
 };
 
 #endif

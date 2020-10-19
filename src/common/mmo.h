@@ -70,18 +70,6 @@ enum NFLAGTYPE : uint32
     NFLAG_RECRUIT       = 0x20000000,
 };
 
-enum ELEMENTS
-{
-    FIRE		= 0x01,
-    ICE			= 0x02,
-    WIND		= 0x04,
-    EARTH		= 0x08,
-    THUNDER		= 0x10,
-    WATER		= 0x20,
-	LIGHT		= 0x40,
-	DARK		= 0x80,
-};
-
 enum MSGSERVTYPE : uint8
 {
     MSG_LOGIN,
@@ -220,6 +208,7 @@ struct eminencelog_t
 struct eminencecache_t
 {
     std::bitset<4096> activemap;
+    uint32 lastWriteout {0};
 };
 
 struct nameflags_t

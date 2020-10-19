@@ -252,11 +252,11 @@ enum DAMAGETYPE
     DAMAGE_HTH = 4,
     DAMAGE_ELEMENTAL = 5,
     DAMAGE_FIRE = 6,
-    DAMAGE_EARTH = 7,
-    DAMAGE_WATER = 8,
-    DAMAGE_WIND = 9,
-    DAMAGE_ICE = 10,
-    DAMAGE_LIGHTNING = 11,
+    DAMAGE_ICE = 7,
+    DAMAGE_WIND = 8,
+    DAMAGE_EARTH = 9,
+    DAMAGE_LIGHTNING = 10,
+    DAMAGE_WATER = 11,
     DAMAGE_LIGHT = 12,
     DAMAGE_DARK = 13,
 };
@@ -669,7 +669,8 @@ public:
     CParty*			PParty;					    // описание группы, в которой состоит сущность
     CBattleEntity*	PPet;					    // питомец сущности
     CBattleEntity*	PMaster;				    // владелец/хозяин сущности (распространяется на все боевые сущности)
-    CBattleEntity*	PLastAttacker;
+    CBattleEntity*  PLastAttacker;
+    time_point      LastAttacked;
 
     std::unique_ptr<CStatusEffectContainer> StatusEffectContainer;
     std::unique_ptr<CRecastContainer> PRecastContainer;
