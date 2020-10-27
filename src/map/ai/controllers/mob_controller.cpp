@@ -201,7 +201,7 @@ bool CMobController::CanDetectTarget(CBattleEntity* PTarget, bool forceSight)
         hasSneak = PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_SNEAK);
     }
 
-    if (detectSight && !hasInvisible && currentDistance < PMob->getMobMod(MOBMOD_SIGHT_RANGE) && isFaceing(PMob->loc.p, PTarget->loc.p, 40))
+    if (detectSight && !hasInvisible && currentDistance < PMob->getMobMod(MOBMOD_SIGHT_RANGE) && facing(PMob->loc.p, PTarget->loc.p, 64))
     {
         return CanSeePoint(PTarget->loc.p);
     }
@@ -629,7 +629,7 @@ void CMobController::Move()
                         {
                             if (PSpawnedMob.second != PMob && !PSpawnedMob.second->PAI->PathFind->IsFollowingPath() && distance(PSpawnedMob.second->loc.p, PMob->loc.p) < 1.f)
                             {
-                                auto angle = getangle(PMob->loc.p, PTarget->loc.p) + 64;
+                                auto angle = worldAngle(PMob->loc.p, PTarget->loc.p) + 64;
                                 position_t new_pos {PMob->loc.p.x - (cosf(rotationToRadian(angle)) * 1.5f),
                                     PTarget->loc.p.y, PMob->loc.p.z + (sinf(rotationToRadian(angle)) * 1.5f), 0, 0};
                                 if (PMob->PAI->PathFind->ValidPosition(new_pos))
@@ -856,7 +856,7 @@ void CMobController::FollowRoamPath()
         PMob->PAI->PathFind->FollowPath();
 
         CBattleEntity* PPet = PMob->PPet;
-        if (PPet != nullptr && !PPet->PAI->IsEngaged())
+        if (PPet != nullptr && PPet->PAI->IsSpawned() && !PPet->PAI->IsEngaged())
         {
             // pet should follow me if roaming
             position_t targetPoint = nearPosition(PMob->loc.p, 2.1f, (float)M_PI);
