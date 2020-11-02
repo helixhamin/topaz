@@ -35,7 +35,6 @@ The NavMesh class will load and find paths given a start point and end point.
 #include <memory>
 
 static constexpr int MAX_NAV_POLYS = 256;
-static constexpr int MAX_RAYCAST_POLYS  = 49152;
 static constexpr int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
 static constexpr int NAVMESHSET_VERSION = 1;
 
@@ -73,25 +72,26 @@ public:
     std::vector<position_t> findPath(const position_t& start, const position_t& end);
     std::pair<int16, position_t> findRandomPosition(const position_t& start, float maxRadius);
 
-    // returns true if the point is in water
+    // Returns true if the point is in water
     bool inWater(const position_t& point);
-
-    // returns true if no wall was hit
+    
+    // Returns true if no wall was hit
+    //
+    // Recast Detour Docs:
+    // Casts a 'walkability' ray along the surface of the navigation mesh from the start position toward the end position.
+    // Note: This is not a point-to-point in 3D space calculation, it is 2D across the navmesh!
     bool raycast(const position_t& start, const position_t& end);
 
     bool validPosition(const position_t& position);
-
-    double DistanceToWall(const position_t& start);
 
 private:
     void outputError(uint32 status);
 
     uint16 m_zoneID;
     dtRaycastHit m_hit;
-    dtPolyRef m_hitPath[100];
+    dtPolyRef m_hitPath[20];
     std::unique_ptr<dtNavMesh> m_navMesh;
     dtNavMeshQuery m_navMeshQuery;
-    dtPolyRef m_raycastVisitedPolys[16384];
 };
 
 #endif

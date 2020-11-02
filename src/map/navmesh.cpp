@@ -20,9 +20,12 @@
 */
 
 #include "navmesh.h"
+
 #include <cstring>
+#include <cfloat>
 #include <iostream>
 #include <fstream>
+
 #include "../common/tpzrand.h"
 
 const int8 CNavMesh::ERROR_NEARESTPOLY;
@@ -379,122 +382,113 @@ bool CNavMesh::validPosition(const position_t& position)
     return m_navMesh->isValidPolyRef(startRef);
 }
 
-double CNavMesh::DistanceToWall(const position_t& start)
-{
-    dtStatus status;
-    float spos[3];
-    ToDetourPos(&start, spos);
-    float polyPickExt[3];
-    polyPickExt[0] = 30;
-    polyPickExt[1] = 60;
-    polyPickExt[2] = 30;
-    float snearest[3];
-    dtQueryFilter filter;
-
-    // include walking
-    filter.setIncludeFlags(0xFFE1);
-    // exclude swim,jump,door
-    filter.setExcludeFlags(0xE);
-
-    dtPolyRef startRef;
-    status = m_navMeshQuery.findNearestPoly(spos, polyPickExt, &filter, &startRef, snearest);
-    if (dtStatusFailed(status))
-    {
-        ShowNavError("CNavMesh::DistanceToWall findNearestPoly failed (%f, %f, %f) (%u)\n", spos[0], spos[1], spos[2], m_zoneID);
-        outputError(status);
-        return 0.0;
-    }
-
-    float distanceToWall = 0.0f;
-    float hitPos[3];
-    float hitNormal[3];
-    int npolys;
-    status = m_navMeshQuery.findDistanceToWall(startRef, snearest, 100.0f, &filter, &distanceToWall, hitPos, hitNormal);
-    if (dtStatusFailed(status))
-    {
-        ShowNavError("CNavMesh::DistanceToWall findDistanceToWall failed (%f, %f, %f) (%u)\n", spos[0], spos[1], spos[2], m_zoneID);
-        outputError(status);
-        return 0.0;
-    }
-
-    return static_cast<double>(distanceToWall);
-}
-
-// Recast Detour Docs:
-// Casts a 'walkability' ray along the surface of the navigation mesh from the start position toward the end position.
-// Note: This is not a point-to-point in 3D space calculation, it is 2D across the navmesh!
 bool CNavMesh::raycast(const position_t& start, const position_t& end)
 {
     TracyZoneScoped;
+
     if (start.x == end.x && start.y == end.y && start.z == end.z)
     {
         return true;
     }
 
     dtStatus status;
+
     float spos[3];
-    ToDetourPos(&start, spos);
+    CNavMesh::ToDetourPos(&start, spos);
 
     float epos[3];
-    ToDetourPos(&end, epos);
+    CNavMesh::ToDetourPos(&end, epos);
 
     float polyPickExt[3];
     polyPickExt[0] = 30;
     polyPickExt[1] = 60;
     polyPickExt[2] = 30;
 
-    float snearest[3];
     dtQueryFilter filter;
+    filter.setIncludeFlags(0xffff);
+    filter.setExcludeFlags(0);
 
-    // include walking
-    filter.setIncludeFlags(0xFFE1);
-    // exclude swim,jump,door
-    filter.setExcludeFlags(0xE);
     dtPolyRef startRef;
+    float snearest[3];
 
     status = m_navMeshQuery.findNearestPoly(spos, polyPickExt, &filter, &startRef, snearest);
+
     if (dtStatusFailed(status))
     {
         ShowNavError("CNavMesh::raycast start point invalid (%f, %f, %f) (%u)\n", spos[0], spos[1], spos[2], m_zoneID);
         outputError(status);
-        return false;
+        return true;
     }
 
     if (!m_navMesh->isValidPolyRef(startRef))
     {
         ShowNavError("CNavMesh::raycast startRef is invalid (%f, %f, %f) (%u)\n", start.x, start.y, start.z, m_zoneID);
-        return false;
+        return true;
+    }
+
+    dtPolyRef endRef;
+    float enearest[3];
+
+    status = m_navMeshQuery.findNearestPoly(epos, polyPickExt, &filter, &endRef, enearest);
+
+    if (dtStatusFailed(status))
+    {
+        ShowNavError("CNavMesh::raycast end point invalid (%f, %f, %f) (%u)\n", epos[0], epos[1], epos[2], m_zoneID);
+        outputError(status);
+        return true;
+    }
+
+    if (!m_navMesh->isValidPolyRef(endRef))
+    {
+        ShowNavError("CNavMesh::raycast endRef is invalid (%f, %f, %f) (%u)\n", end.x, end.y, end.z, m_zoneID);
+        return true;
+    }
+
+    float distanceToWall = 0.0f;
+    float hitPos[3];
+    float hitNormal[3];
+
+    status = m_navMeshQuery.findDistanceToWall(endRef, enearest, 5.0f, &filter, &distanceToWall, hitPos, hitNormal);
+
+    if (dtStatusFailed(status))
+    {
+        ShowNavError("CNavMesh::raycast findDistanceToWall failed (%f, %f, %f) (%u)\n", epos[0], epos[1], epos[2], m_zoneID);
+        outputError(status);
+        return true;
     }
 
     // There is a tiny strip of walkable map at the very edge of walls that
     // a player can use, but is not part of the navmesh. For a point to be
     // raycasted to - it needs to be on the navmesh. This will check to
     // see if the player is "off-mesh" and raycast to the nearest "on-mesh"
-    // point instead.
-    if (DistanceToWall(end) <= 2.0)
+    // point instead. distanceToWall will be 0.0f if the player is "off-mesh".
+    if (distanceToWall < 0.01f)
     {
-        float closest[3];
-        status = m_navMeshQuery.closestPointOnPolyBoundary(startRef, epos, closest);
+        // Overwrite epos with closest valid point
+        status = m_navMeshQuery.closestPointOnPolyBoundary(startRef, epos, epos);
+
         if (dtStatusFailed(status))
         {
             ShowNavError("CNavMesh::raycast closestPointOnPolyBoundary failed (%u)\n", m_zoneID);
             outputError(status);
-            return false;
+            return true;
         }
-
-        std::memcpy(epos, closest, sizeof(float) * 3);
     }
 
-    float t = 0;
-    float hitNormal[3];
-    int npolys = 0;
-    status = m_navMeshQuery.raycast(startRef, spos, epos, &filter, &t, hitNormal, m_raycastVisitedPolys, &npolys, MAX_RAYCAST_POLYS);
+    status = m_navMeshQuery.raycast(startRef, spos, epos, &filter, 0, &m_hit);
+
     if (dtStatusFailed(status))
     {
-        ShowNavError("CNavMesh::raycast raycast failed (%u)\n", m_zoneID);
+        ShowNavError("CNavMesh::raycast raycast failed (%f, %f, %f)->(%f, %f, %f) (%u)\n", spos[0], spos[1], spos[2], epos[0], epos[1], epos[2], m_zoneID);
         outputError(status);
-        return false;
+        return true;
     }
 
-    return t > 1;
+    // no wall was hit
+    if (m_hit.t == FLT_MAX)
+    {
+        return true;
+    }
+
+    return false;
 }
