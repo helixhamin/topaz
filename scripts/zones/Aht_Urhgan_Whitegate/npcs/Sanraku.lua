@@ -9,65 +9,170 @@ require("scripts/globals/besieged")
 local ID = require("scripts/zones/Aht_Urhgan_Whitegate/IDs")
 -----------------------------------
 
-function onTrade(player, npc, trade)
-    --[[
-    local trophies =
-    {
-        2616, 2617, 2618, 2613, 2614, 2615, 2610, 2611, 2612,
-        2609, 2626, 2627, 2628, 2623, 2624, 2625, 2620, 2621,
-        2622, 2619, 2636, 2637, 2638, 2633, 2634, 2635, 2630,
-        2631, 2632, 2629
-    }
+-- Define collections
 
-    local seals =
-    {
-        tpz.ki.MAROON_SEAL, tpz.ki.MAROON_SEAL, tpz.ki.MAROON_SEAL,
-        tpz.ki.APPLE_GREEN_SEAL, tpz.ki.APPLE_GREEN_SEAL, tpz.ki.APPLE_GREEN_SEAL,
-        tpz.ki.CHARCOAL_GREY_SEAL, tpz.ki.DEEP_PURPLE_SEAL, tpz.ki.CHESTNUT_COLORED_SEAL,
-        tpz.ki.LILAC_COLORED_SEAL,
-        tpz.ki.CERISE_SEAL, tpz.ki.CERISE_SEAL, tpz.ki.CERISE_SEAL,
-        tpz.ki.SALMON_COLORED_SEAL, tpz.ki.SALMON_COLORED_SEAL, tpz.ki.SALMON_COLORED_SEAL,
-        tpz.ki.PURPLISH_GREY_SEAL, tpz.ki.GOLD_COLORED_SEAL, tpz.ki.COPPER_COLORED_SEAL,
-        tpz.ki.BRIGHT_BLUE_SEAL,
-        tpz.ki.PINE_GREEN_SEAL, tpz.ki.PINE_GREEN_SEAL, tpz.ki.PINE_GREEN_SEAL,
-        tpz.ki.AMBER_COLORED_SEAL, tpz.ki.AMBER_COLORED_SEAL, tpz.ki.AMBER_COLORED_SEAL,
-        tpz.ki.FALLOW_COLORED_SEAL, tpz.ki.TAUPE_COLORED_SEAL, tpz.ki.SIENNA_COLORED_SEAL,
-        tpz.ki.LAVENDER_COLORED_SEAL
-    }
+local znms = {
+    -- Tinnin
+    { trophy = 2609, lure = 2573, seal = tpz.ki.LILAC_COLORED_SEAL },
+    { trophy = 2610, lure = 2574, seal = tpz.ki.CHARCOAL_GREY_SEAL },
+    { trophy = 2611, lure = 2575, seal = tpz.ki.DEEP_PURPLE_SEAL },
+    { trophy = 2612, lure = 2576, seal = tpz.ki.CHESTNUT_COLORED_SEAL },
+    { trophy = 2613, lure = 2577, seal = tpz.ki.APPLE_GREEN_SEAL },
+    { trophy = 2614, lure = 2578, seal = tpz.ki.APPLE_GREEN_SEAL },
+    { trophy = 2615, lure = 2579, seal = tpz.ki.APPLE_GREEN_SEAL },
+    { trophy = 2616, lure = 2580, seal = tpz.ki.MAROON_SEAL },
+    { trophy = 2617, lure = 2581, seal = tpz.ki.MAROON_SEAL },
+    { trophy = 2618, lure = 2582, seal = tpz.ki.MAROON_SEAL },
 
-    if trade:getItemCount() == 1 then
-        if trade:hasItemQty(2477, 1) then -- Trade Soul Plate
-            zeni = math.random(1, 200) -- random value since soul plates aren't implemented yet.
-            player:tradeComplete()
-            player:addCurrency("zeni_point", zeni)
-            player:startEvent(910, zeni)
-        else
-            znm = -1
-            found = false
+    -- Sarameya
+    { trophy = 2619, lure = 2583, seal = tpz.ki.BRIGHT_BLUE_SEAL },
+    { trophy = 2620, lure = 2584, seal = tpz.ki.PURPLISH_GREY_SEAL },
+    { trophy = 2621, lure = 2585, seal = tpz.ki.GOLD_COLORED_SEAL },
+    { trophy = 2622, lure = 2586, seal = tpz.ki.COPPER_COLORED_SEAL },
+    { trophy = 2623, lure = 2587, seal = tpz.ki.SALMON_COLORED_SEAL },
+    { trophy = 2624, lure = 2588, seal = tpz.ki.SALMON_COLORED_SEAL },
+    { trophy = 2625, lure = 2589, seal = tpz.ki.SALMON_COLORED_SEAL },
+    { trophy = 2626, lure = 2590, seal = tpz.ki.CERISE_SEAL },
+    { trophy = 2627, lure = 2591, seal = tpz.ki.CERISE_SEAL },
+    { trophy = 2628, lure = 2592, seal = tpz.ki.CERISE_SEAL },
 
-            while znm <= 30 and not(found) do
-                znm = znm + 1
-                found = trade:hasItemQty(trophies[znm + 1], 1)
-            end
+    -- Tyger
+    { trophy = 2629, lure = 2593, seal = tpz.ki.LAVENDER_COLORED_SEAL },
+    { trophy = 2630, lure = 2594, seal = tpz.ki.FALLOW_COLORED_SEAL },
+    { trophy = 2631, lure = 2595, seal = tpz.ki.TAUPE_COLORED_SEAL },
+    { trophy = 2632, lure = 2596, seal = tpz.ki.SIENNA_COLORED_SEAL },
+    { trophy = 2633, lure = 2597, seal = tpz.ki.AMBER_COLORED_SEAL },
+    { trophy = 2634, lure = 2598, seal = tpz.ki.AMBER_COLORED_SEAL },
+    { trophy = 2635, lure = 2599, seal = tpz.ki.AMBER_COLORED_SEAL },
+    { trophy = 2636, lure = 2600, seal = tpz.ki.PINE_GREEN_SEAL },
+    { trophy = 2637, lure = 2601, seal = tpz.ki.PINE_GREEN_SEAL },
+    { trophy = 2638, lure = 2602, seal = tpz.ki.PINE_GREEN_SEAL },
 
-            if (found) then
-                znm = znm + 1
+    -- Pandemonium Warden
+    { trophy = nil, lure = 2572, seal = nil }
+}
 
-                if player:hasKeyItem(seals[znm]) == false then
+local options = {}
+
+-- Costs
+options[100] = { cost = 1000 }
+options[101] = { cost = 1000 }
+options[102] = { cost = 1000 }
+options[103] = { cost = 2000 }
+options[104] = { cost = 2000 }
+options[105] = { cost = 2000 }
+options[106] = { cost = 3000 }
+options[107] = { cost = 3000 }
+options[108] = { cost = 3000 }
+options[109] = { cost = 4000 }
+options[110] = { cost = 1000 }
+options[111] = { cost = 1000 }
+options[112] = { cost = 1000 }
+options[113] = { cost = 2000 }
+options[114] = { cost = 2000 }
+options[115] = { cost = 2000 }
+options[116] = { cost = 3000 }
+options[117] = { cost = 3000 }
+options[118] = { cost = 3000 }
+options[119] = { cost = 4000 }
+options[120] = { cost = 1000 }
+options[121] = { cost = 1000 }
+options[122] = { cost = 1000 }
+options[123] = { cost = 2000 }
+options[124] = { cost = 2000 }
+options[125] = { cost = 2000 }
+options[126] = { cost = 3000 }
+options[127] = { cost = 3000 }
+options[128] = { cost = 3000 }
+options[129] = { cost = 4000 }
+options[130] = { cost = 5000 }
+
+-- Salts
+options[300] = { keyitem = tpz.ki.SICKLEMOON_SALT, cost = 500, required = nil}
+options[301] = { keyitem = tpz.ki.SILVER_SEA_SALT, cost = 500, required = nil}
+options[302] = { keyitem = tpz.ki.CYAN_DEEP_SALT, cost = 500, required = nil}
+
+-- Tinnin
+options[400] = { item = 2580, cost = 1000, required = nil }
+options[401] = { item = 2581, cost = 1000, required = nil }
+options[402] = { item = 2582, cost = 1000, required = nil }
+options[403] = { item = 2577, cost = 2000, required = { tpz.ki.MAROON_SEAL }}
+options[404] = { item = 2578, cost = 2000, required = { tpz.ki.MAROON_SEAL }}
+options[405] = { item = 2579, cost = 2000, required = { tpz.ki.MAROON_SEAL }}
+options[406] = { item = 2574, cost = 3000, required = { tpz.ki.APPLE_GREEN_SEAL }}
+options[407] = { item = 2575, cost = 3000, required = { tpz.ki.APPLE_GREEN_SEAL }}
+options[408] = { item = 2576, cost = 3000, required = { tpz.ki.APPLE_GREEN_SEAL }}
+options[409] = { item = 2573, cost = 4000, required = { tpz.ki.CHARCOAL_GREY_SEAL, tpz.ki.DEEP_PURPLE_SEAL, tpz.ki.CHESTNUT_COLORED_SEAL }}
+
+-- Sarameya
+options[410] = { item = 2590, cost = 1000, required = nil }
+options[411] = { item = 2591, cost = 1000, required = nil }
+options[412] = { item = 2592, cost = 1000, required = nil }
+options[413] = { item = 2587, cost = 2000, required = { tpz.ki.CERISE_SEAL }}
+options[414] = { item = 2588, cost = 2000, required = { tpz.ki.CERISE_SEAL }}
+options[415] = { item = 2589, cost = 2000, required = { tpz.ki.CERISE_SEAL }}
+options[416] = { item = 2584, cost = 3000, required = { tpz.ki.SALMON_COLORED_SEAL }}
+options[417] = { item = 2585, cost = 3000, required = { tpz.ki.SALMON_COLORED_SEAL }}
+options[418] = { item = 2586, cost = 3000, required = { tpz.ki.SALMON_COLORED_SEAL }}
+options[419] = { item = 2583, cost = 4000, required = { tpz.ki.COPPER_COLORED_SEAL, tpz.ki.GOLD_COLORED_SEAL, tpz.ki.PURPLISH_GREY_SEAL }}
+
+-- Tyger
+options[420] = { item = 2600, cost = 1000, required = nil }
+options[421] = { item = 2601, cost = 1000, required = nil }
+options[422] = { item = 2602, cost = 1000, required = nil }
+options[423] = { item = 2597, cost = 2000, required = { tpz.ki.PINE_GREEN_SEAL }}
+options[424] = { item = 2598, cost = 2000, required = { tpz.ki.PINE_GREEN_SEAL }}
+options[425] = { item = 2599, cost = 2000, required = { tpz.ki.PINE_GREEN_SEAL }}
+options[426] = { item = 2594, cost = 3000, required = { tpz.ki.AMBER_COLORED_SEAL }}
+options[427] = { item = 2595, cost = 3000, required = { tpz.ki.AMBER_COLORED_SEAL }}
+options[428] = { item = 2596, cost = 3000, required = { tpz.ki.AMBER_COLORED_SEAL }}
+options[429] = { item = 2593, cost = 4000, required = { tpz.ki.TAUPE_COLORED_SEAL, tpz.ki.FALLOW_COLORED_SEAL, tpz.ki.SIENNA_COLORED_SEAL }}
+
+-- PW
+options[440] = { item = 2572, cost = 5000, required = { tpz.ki.LILAC_COLORED_SEAL, tpz.ki.BRIGHT_BLUE_SEAL, tpz.ki.LAVENDER_COLORED_SEAL }}
+
+-- Era Custom trades for Zeni
+local customTradeItemIds = {
+    [1816] = 1000, -- Wyrm Horn
+    [2154] = 1000, -- Orobon Lure
+    [2373] = 1000, -- Khimera Tail
+    [5565] = 1000, -- Cerberus Meat
+     [865] = 1000, -- Nidhogg Scales
+    [5564] = 1000  -- Hydra Meat
+}
+
+function onTrade(player,npc,trade)
+    -- Guardian clauses
+    -- Make sure we exactly 1 item
+    if trade:getItemCount() ~= 1 then return end
+
+    local tradeItemId = trade:getItemId(0) -- only 1 item, get first
+
+    if tradeItemId == 2477 then -- Soul Plate
+        zeni = math.random(1,200) -- random value since soul plates aren't implemented yet.
+        player:tradeComplete()
+        player:addCurrency("zeni_point", zeni)
+        player:startEvent(910, zeni)
+    elseif customTradeItemIds[tradeItemId] then
+        player:tradeComplete();
+        player:addCurrency("zeni_point", customTradeItemIds[tradeItemId]);
+    else
+        for i,znm in pairs(znms) do
+            if tradeItemId == znm.trophy then
+                if player:hasKeyItem(znm.seal) == false then
                     player:tradeComplete()
-                    player:addKeyItem(seals[znm])
-                    player:startEvent(912, 0, 0, 0, seals[znm])
+                    player:addKeyItem(znm.seal)
+                    player:startEvent(912, 0, 0, 0, znm.seal)
                 else
-                    player:messageSpecial(ID.text.SANCTION + 8, seals[znm]) -- You already possess .. (not sure this is authentic)
+                    player:messageSpecial(ID.text.SANCTION + 8, znm.seal) -- You already possess .. (not sure this is authentic)
                 end
+                break
             end
         end
     end
-    ]]
 end
 
-function onTrigger(player, npc)
-    --[[
+function onTrigger(player,npc)
     if player:getCharVar("ZeniStatus") == 0 then
         player:startEvent(908)
     else
@@ -112,130 +217,65 @@ function onTrigger(player, npc)
 
         player:startEvent(909, param)
     end
-    ]]
 end
 
-function onEventUpdate(player, csid, option)
-    -- printf("updateRESULT: %u", option)
-    --[[
-    local lures =
-    {
-        2580, 2581, 2582, 2577, 2578, 2579, 2574, 2575, 2576,
-        2573, 2590, 2591, 2592, 2587, 2588, 2589, 2584, 2585,
-        2586, 2583, 2600, 2601, 2602, 2597, 2598, 2599, 2594,
-        2595, 2596, 2593, 2572
-    }
-
-    local seals =
-    {
-        tpz.ki.MAROON_SEAL, tpz.ki.MAROON_SEAL, tpz.ki.MAROON_SEAL,
-        tpz.ki.APPLE_GREEN_SEAL, tpz.ki.APPLE_GREEN_SEAL, tpz.ki.APPLE_GREEN_SEAL,
-        tpz.ki.CHARCOAL_GREY_SEAL, tpz.ki.DEEP_PURPLE_SEAL, tpz.ki.CHESTNUT_COLORED_SEAL,
-        tpz.ki.LILAC_COLORED_SEAL,
-        tpz.ki.CERISE_SEAL, tpz.ki.CERISE_SEAL, tpz.ki.CERISE_SEAL,
-        tpz.ki.SALMON_COLORED_SEAL, tpz.ki.SALMON_COLORED_SEAL, tpz.ki.SALMON_COLORED_SEAL,
-        tpz.ki.PURPLISH_GREY_SEAL, tpz.ki.GOLD_COLORED_SEAL, tpz.ki.COPPER_COLORED_SEAL,
-        tpz.ki.BRIGHT_BLUE_SEAL,
-        tpz.ki.PINE_GREEN_SEAL, tpz.ki.PINE_GREEN_SEAL, tpz.ki.PINE_GREEN_SEAL,
-        tpz.ki.AMBER_COLORED_SEAL, tpz.ki.AMBER_COLORED_SEAL, tpz.ki.AMBER_COLORED_SEAL,
-        tpz.ki.FALLOW_COLORED_SEAL, tpz.ki.TAUPE_COLORED_SEAL, tpz.ki.SIENNA_COLORED_SEAL,
-        tpz.ki.LAVENDER_COLORED_SEAL
-    }
-
+function onEventUpdate(player,csid,option)
     if csid == 909 then
         local zeni = player:getCurrency("zeni_point")
 
-        if option >= 300 and option <= 302 then
-            if option == 300 then
-                salt = tpz.ki.SICKLEMOON_SALT
-            elseif option == 301 then
-                salt = tpz.ki.SILVER_SEA_SALT
-            elseif option == 302 then
-                salt = tpz.ki.CYAN_DEEP_SALT
-            end
-            if zeni < 500 then
-                player:updateEvent(2, 500) -- not enough zeni
-            elseif player:hasKeyItem(salt) then
-                player:updateEvent(3, 500) -- has salt already
-            else
-                player:updateEvent(1, 500, 0, salt)
-                player:addKeyItem(salt)
-                player:delCurrency("zeni_point", 500)
-            end
-        else -- player is interested in buying a pop item.
-            n = option % 10
-
-            if n <= 2 then
-                if option == 130 or option == 440 then
-                    tier = 5
-                else
-                    tier = 1
-                end
-            elseif n >= 3 and n <= 5 then
-                tier = 2
-            elseif n >= 6 and n <= 8 then
-                tier = 3
-            else
-                tier = 4
+        if option == 500 then -- player has declined to buy a pop item
+            player:updateEvent(1, 1)
+        elseif options[option] then
+            params = options[option]
+            if params.item == nil and params.keyitem == nil and params.cost ~= nil then -- Cost options
+                player:updateEvent(0, 0, 0, 0, 0, 0, params.cost)
+                return
             end
 
-            cost = tier * 1000 -- static pricing for now.
-
-            if option >= 100 and option <= 130 then
-                player:updateEvent(0, 0, 0, 0, 0, 0, cost)
-            elseif option >= 400 and option <=440 then
-                if option == 440 then
-                    option = 430
-                end
-
-                item = lures[option-399]
-
-                if option == 430 then -- Pandemonium Warden
-                    keyitem1 = tpz.ki.LILAC_COLORED_SEAL keyitem2 = tpz.ki.BRIGHT_BLUE_SEAL keyitem3 = tpz.ki.LAVENDER_COLORED_SEAL
-                elseif option == 409 then -- Tinnin
-                    keyitem1 = tpz.ki.CHARCOAL_GREY_SEAL keyitem2 = tpz.ki.DEEP_PURPLE_SEAL keyitem3 = tpz.ki.CHESTNUT_COLORED_SEAL
-                elseif option == 419 then -- Sarameya
-                    keyitem1 = tpz.ki.PURPLISH_GREY_SEAL keyitem2 = tpz.ki.GOLD_COLORED_SEAL keyitem3 = tpz.ki.COPPER_COLORED_SEAL
-                elseif option == 429 then -- Tyger
-                    keyitem1 = tpz.ki.TAUPE_COLORED_SEAL keyitem2 = tpz.ki.FALLOW_COLORED_SEAL keyitem3 = tpz.ki.SIENNA_COLORED_SEAL
-                else
-                    keyitem1 = seals[option - 402] keyitem2 = nil keyitem3 = nil
-                end
-                if cost > zeni then
-                    player:updateEvent(2, cost, item, keyitem1, keyitem2, keyitem3) -- you don't have enough zeni.
-                elseif player:addItem(item) then
-                    if keyitem1 ~= nil then
-                        player:delKeyItem(keyitem1)
-                    end
-                    if keyitem2 ~= nil then
-                        player:delKeyItem(keyitem2)
-                    end
-                    if keyitem3 ~= nil then
-                        player:delKeyItem(keyitem3)
-                    end
-
-                    player:updateEvent(1, cost, item, keyitem1, keyitem2, keyitem3)
-                    player:delCurrency("zeni_point", cost)
-                else
-                    player:updateEvent(4, cost, item, keyitem1, keyitem2, keyitem3) -- Cannot obtain.
-                end
-            elseif option == 500 then -- player has declined to buy a pop item
-                player:updateEvent(1, 1) -- restore the "Gaining access to the islets" option.
+            if zeni < params.cost then
+                player:updateEvent(2, params.cost) -- not enough zeni
             else
-                -- print("onEventSelection - CSID:", csid)
-                -- print("onEventSelection - option ===", option)
+                if params.required ~= nil then
+                    for i,keyitem in pairs(params.required) do
+                        if not player:hasKeyItem(keyitem) then
+                            print(player:getName().. " does not have required KeyItem (" ..keyitem.. ")")
+                        return end
+                    end
+                end
+                if params.item ~= nil then
+                    if player:getFreeSlotsCount() == 0 then
+                        player:updateEvent(4, params.cost, params.item) -- Cannot obtain.
+                    elseif player:addItem(params.item) then
+                        player:delCurrency("zeni_point", params.cost)
+                        if params.required ~= nil then
+                            for i,keyitem in pairs(params.required) do
+                                player:delKeyItem(keyitem)
+                            end
+                            player:updateEvent(1, params.cost, params.item, params.required[1], params.required[2], params.required[3])
+                        else
+                            player:updateEvent(1, params.cost, params.item)
+                        end
+                    else
+                        player:updateEvent(4, params.cost, params.item) -- Cannot obtain.
+                    end
+                elseif params.keyitem ~= nil then
+                    if player:hasKeyItem(params.keyitem) then
+                        player:updateEvent(3, params.cost) -- has keyitem already
+                    else
+                        player:updateEvent(1, params.cost, 0, params.keyitem)
+                        player:addKeyItem(params.keyitem)
+                        player:delCurrency("zeni_point", params.cost)
+                    end
+                end
             end
         end
     end
-    ]]
 end
 
-function onEventFinish(player, csid, option)
-    -- printf("finishRESULT: %u", option)
-    --[[
+function onEventFinish(player,csid,option)
+    -- Handle ZeniStatus event
     if csid == 908 then
         player:setCharVar("ZeniStatus", 1)
         player:addCurrency("zeni_point", 2000)
     end
-    ]]
 end
